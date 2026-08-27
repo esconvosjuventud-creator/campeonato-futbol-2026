@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#7b1553">
+  <title>Estadísticas | Campeonato de Fútbol 2026</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/stats.css">
+</head>
+<body class="public-stats-body">
+  <header class="public-stats-hero">
+    <div class="public-stats-hero-inner">
+      <div class="public-stats-nav">
+        <a href="index.html">← Inscripción</a>
+        <a href="campeonato.html">Fixture y resultados</a>
+      </div>
+      <span class="public-stats-kicker">14.ª EDICIÓN · CAMPEONATO 2026</span>
+      <h1>Estadísticas del campeonato</h1>
+      <p>Goles, disciplina y campeones por categoría.</p>
+      <div class="public-stats-actions">
+        <a href="https://www.instagram.com/esconvosjuventud/" target="_blank" rel="noopener noreferrer">
+          @esconvosjuventud ↗
+        </a>
+        <button id="publicStatsRefresh" type="button">Actualizar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="public-stats-container">
+    <div id="publicStatsError" class="public-stats-empty hidden"></div>
+    <nav id="publicStatsTabs" class="public-stats-tabs" aria-label="Categorías"></nav>
+    <section id="publicStatsContent"></section>
+  </main>
+
+  <footer class="public-stats-footer">
+    <strong>Que en tu equipo no juegue la violencia</strong>
+    <span>Respeto · Juego limpio · Compañerismo</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/public-stats.js"></script>
+</body>
+</html>
