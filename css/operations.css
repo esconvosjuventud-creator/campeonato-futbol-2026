@@ -1,0 +1,249 @@
+/* ==========================================================
+   ETAPA 5 — JORNADA, CRONOGRAMA Y PANTALLA
+   ========================================================== */
+
+.operations-intro{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:18px;
+  margin-bottom:14px;border-left:5px solid #ef7418
+}
+.operations-intro h2{margin:4px 0 5px}
+.operations-intro p{margin:0;max-width:760px;color:var(--muted);line-height:1.5}
+.operations-kicker{
+  display:block;color:#8a285d;font-size:.69rem;font-weight:950;
+  letter-spacing:.11em;text-transform:uppercase
+}
+.operations-intro-actions{display:flex;gap:7px;flex-wrap:wrap}
+.operations-intro-actions a{text-decoration:none}
+.operations-builder{margin-bottom:14px}
+.operations-form-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:12px
+}
+.operations-wide{grid-column:1/-1}
+.operations-builder-foot{
+  display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:14px
+}
+.operations-preview-info{
+  color:var(--muted);font-size:.79rem;line-height:1.45
+}
+.operations-preview-info strong{color:#7b1553;font-size:1rem}
+.operations-days-card{margin-top:14px}
+.operations-empty{
+  min-height:170px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;color:var(--muted);text-align:center
+}
+.operations-empty>span{font-size:2rem}.operations-empty strong{color:#333}
+.operation-day-card{
+  margin-top:15px;border:1px solid var(--line);border-radius:17px;
+  overflow:hidden;background:#f7f8f9
+}
+.operation-day-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  padding:15px;background:#fff;border-bottom:1px solid var(--line)
+}
+.operation-day-head h3{margin:3px 0 3px}
+.operation-day-actions{display:flex;gap:7px;flex-wrap:wrap}
+.operation-court-columns{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px;padding:13px
+}
+.operation-court{
+  min-width:0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff
+}
+.operation-court h4{
+  margin:0;padding:10px 12px;color:#fff;background:#242424;font-size:.82rem
+}
+.operation-slot{padding:10px;border-top:1px solid var(--line)}
+.operation-court h4+.operation-slot{border-top:0}
+.operation-slot-top{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px
+}
+.operation-slot-top>strong{font-size:1rem;color:#7b1553}
+.operation-slot-top>span{font-size:.68rem;color:var(--muted)}
+.operation-slot-teams{
+  display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);
+  gap:6px;align-items:center;text-align:center;font-size:.79rem;margin-bottom:8px
+}
+.operation-slot-teams span{color:var(--muted)}
+.operation-slot-controls{
+  display:grid;grid-template-columns:120px 105px minmax(100px,1fr) auto;gap:6px
+}
+.operation-slot-controls input,.operation-slot-controls select{
+  min-height:38px;padding:7px 8px;font-size:.76rem
+}
+.slot-score{
+  display:grid;grid-template-columns:1fr 13px 1fr;gap:3px;align-items:center
+}
+.slot-score input{text-align:center;min-width:0}
+.slot-score span{text-align:center}
+.operation-slot.status-en-juego{background:#fff3f3;border-left:4px solid #c91f2a}
+.operation-slot.status-llamado{background:#fffbea;border-left:4px solid #e3b118}
+.operation-slot.status-finalizado{background:#f0faf4;border-left:4px solid #2c8b52}
+.operation-slot.status-demorado{background:#fff5e8;border-left:4px solid #e47715}
+.operation-slot.status-suspendido{background:#f1f2f3;border-left:4px solid #6c737b}
+
+/* ---------------- Public jornada ---------------- */
+.public-ops-body{margin:0;background:#f4f5f7;color:#171717}
+.public-ops-hero{
+  color:#fff;background:
+    radial-gradient(circle at 88% 10%,rgba(255,214,91,.16),transparent 22%),
+    linear-gradient(135deg,#57113e,#851357 52%,#da4b14)
+}
+.public-ops-hero-inner{max-width:1120px;margin:auto;padding:27px 18px 29px}
+.public-ops-nav{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:17px}
+.public-ops-nav a{color:rgba(255,255,255,.75);text-decoration:none;font-size:.78rem}
+.public-ops-kicker{color:#ffd65b;font-size:.72rem;font-weight:950;letter-spacing:.11em}
+.public-ops-hero h1{margin:5px 0 3px;font-size:clamp(2rem,6vw,4rem);line-height:.95}
+.public-ops-hero p{margin:0;color:rgba(255,255,255,.84)}
+.public-ops-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.public-ops-actions a,.public-ops-actions button{
+  min-height:41px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.28);border-radius:11px;padding:8px 12px;
+  color:#fff;background:rgba(255,255,255,.10);text-decoration:none;
+  font:inherit;font-size:.78rem;font-weight:850;cursor:pointer
+}
+.public-ops-container{max-width:1120px;margin:20px auto;padding:0 14px 30px}
+.public-ops-empty{
+  padding:24px;border:1px solid var(--line);border-radius:15px;background:#fff;
+  color:var(--muted);text-align:center
+}
+.public-ops-day-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.public-ops-day-tabs button{
+  min-height:42px;border:1px solid var(--line);border-radius:999px;padding:9px 13px;
+  color:#5e6670;background:#fff;font:inherit;font-size:.78rem;font-weight:850;cursor:pointer
+}
+.public-ops-day-tabs button.active{color:#fff;background:#171717;border-color:#171717}
+.public-ops-now{
+  display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px
+}
+.public-now-group{
+  padding:13px;border-radius:14px;color:#fff;background:linear-gradient(135deg,#94121c,#c91f29)
+}
+.public-now-group.call{color:#322500;background:linear-gradient(135deg,#ffe69a,#ffd65b)}
+.public-now-group>span,.public-now-group>strong,.public-now-group>small{display:block}
+.public-now-group>span{font-size:.67rem;font-weight:950;letter-spacing:.09em}
+.public-now-group>strong{margin-top:5px;font-size:1rem}
+.public-now-group>small{margin-top:2px;opacity:.82}
+.public-day-head{margin-bottom:12px}
+.public-day-head>span{color:#7b1553;font-size:.70rem;font-weight:950;text-transform:uppercase}
+.public-day-head h2{margin:3px 0}
+.public-day-head p{margin:0;color:var(--muted);font-size:.78rem}
+.public-courts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:11px}
+.public-court-card{
+  overflow:hidden;border:1px solid var(--line);border-radius:15px;background:#fff;
+  box-shadow:0 10px 24px rgba(0,0,0,.04)
+}
+.public-court-card h3{margin:0;padding:10px 12px;color:#fff;background:#242424;font-size:.82rem}
+.public-slot{display:grid;grid-template-columns:75px minmax(0,1fr);gap:9px;padding:10px;border-top:1px solid var(--line)}
+.public-court-card h3+.public-slot{border-top:0}
+.public-slot-time strong,.public-slot-time span{display:block}
+.public-slot-time strong{color:#7b1553;font-size:.95rem}
+.public-slot-time span{margin-top:3px;color:var(--muted);font-size:.66rem}
+.public-slot-match{
+  display:grid;grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);
+  gap:5px;align-items:center;text-align:center;font-size:.76rem
+}
+.public-slot-match small,.public-slot-match em{grid-column:1/-1}
+.public-slot-match small{color:var(--muted);font-size:.65rem}
+.public-slot-match em{
+  color:#9b5c17;background:#fff3dd;border-radius:7px;padding:4px;font-size:.65rem;font-style:normal
+}
+.public-slot.en-juego{background:#fff1f1}.public-slot.llamado{background:#fffbea}
+.public-slot.finalizado{background:#f1faf4}.public-slot.demorado{background:#fff5e8}
+.public-ops-footer{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding:20px;
+  color:#fff;background:#171717;font-size:.76rem
+}
+
+/* ---------------- Pantalla TV ---------------- */
+.screen-body{
+  margin:0;min-height:100vh;color:#fff;background:#0c0c0d;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+.screen-header{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  padding:18px 28px;border-bottom:1px solid #2a2a2c;background:#141416
+}
+.screen-header>div:first-child span,.screen-header>div:first-child strong{display:block}
+.screen-header>div:first-child span{color:#f0b934;font-size:.72rem;font-weight:950;letter-spacing:.1em}
+.screen-header>div:first-child strong{margin-top:3px;font-size:1rem}
+.screen-clock{text-align:right}
+.screen-clock strong{display:block;font-size:2rem;line-height:1}
+.screen-clock span{display:block;margin-top:4px;color:#9b9ba1;font-size:.75rem}
+.screen-main{padding:24px 28px 30px}
+.screen-label,.screen-section-title>span{
+  color:#f0b934;font-size:.76rem;font-weight:950;letter-spacing:.12em
+}
+.screen-live{
+  padding:22px;border:1px solid #303034;border-radius:20px;
+  background:linear-gradient(135deg,#171719,#211214);box-shadow:0 18px 50px rgba(0,0,0,.30)
+}
+.screen-live-content{margin-top:15px}
+.screen-live-content>div+div{margin-top:20px;padding-top:20px;border-top:1px solid #3a2a2c}
+.screen-live-court{text-align:center;color:#b8b8bd;font-size:.85rem}
+.screen-live-teams{
+  display:grid;grid-template-columns:minmax(0,1fr) 180px minmax(0,1fr);
+  gap:22px;align-items:center;margin-top:12px;text-align:center
+}
+.screen-live-teams>strong{font-size:clamp(1.6rem,4vw,3.5rem);line-height:1}
+.screen-live-score{display:grid;grid-template-columns:1fr 30px 1fr;align-items:center}
+.screen-live-score span{
+  display:grid;place-items:center;min-height:100px;border-radius:18px;
+  color:#fff;background:#a81722;font-size:clamp(2.6rem,7vw,5.8rem);font-weight:1000
+}
+.screen-live-score b{font-size:2rem;color:#777}
+.screen-live-note{margin-top:12px;text-align:center;color:#f1b24d}
+.screen-placeholder{padding:28px;text-align:center;color:#8d8d93;font-size:1.2rem}
+.screen-placeholder strong{color:#fff}
+.screen-placeholder.small{font-size:.9rem}
+.screen-next-section,.screen-calls-section{margin-top:22px}
+.screen-section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.screen-section-title small{color:#77777e}
+.screen-next-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.screen-next-card{
+  min-width:0;padding:14px;border:1px solid #2d2d30;border-radius:14px;background:#151517
+}
+.screen-next-card>div{display:flex;justify-content:space-between;gap:8px;color:#f0b934}
+.screen-next-card>small{display:block;margin:9px 0 4px;color:#77777e}
+.screen-next-card>b,.screen-next-card>em{display:block}
+.screen-next-card>em{margin:3px 0;color:#68686e;font-style:normal}
+.screen-next-card mark{
+  display:inline-block;margin-top:7px;padding:4px 6px;border-radius:7px;color:#2c1a00;background:#f0b934;font-size:.65rem;font-weight:950
+}
+.screen-calls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.screen-call{
+  display:flex;justify-content:space-between;gap:9px;padding:11px;border-radius:11px;
+  color:#2d2100;background:#f0b934
+}
+.screen-call span{font-size:.75rem}.screen-call strong{text-align:right}
+.screen-footer{
+  display:flex;justify-content:space-between;gap:12px;padding:14px 28px;
+  border-top:1px solid #29292c;color:#77777e;background:#101012;font-size:.72rem
+}
+.screen-footer strong{color:#ddd}
+.screen-message{
+  padding:20px;border:1px solid #3c3032;border-radius:14px;color:#ffb9bd;background:#261416
+}
+
+@media(max-width:950px){
+  .operations-form-grid{grid-template-columns:1fr 1fr}
+  .operations-wide{grid-column:1/-1}
+  .operation-slot-controls{grid-template-columns:1fr 1fr}
+  .operation-slot-controls .save-operation-slot{grid-column:1/-1}
+  .screen-next-grid,.screen-calls{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+  .operations-intro,.operations-builder-foot,.operation-day-head{
+    align-items:flex-start;flex-direction:column
+  }
+  .operations-intro-actions,.operation-day-actions{width:100%;display:grid;grid-template-columns:1fr}
+  .operations-form-grid{grid-template-columns:1fr}
+  .operations-wide{grid-column:auto}
+  .operation-slot-controls{grid-template-columns:1fr}
+  .operation-slot-controls .save-operation-slot{grid-column:auto}
+  .public-ops-now{grid-template-columns:1fr}
+  .screen-header{padding:13px;align-items:flex-start}
+  .screen-main{padding:14px}
+  .screen-live-teams{grid-template-columns:1fr}
+  .screen-live-score{max-width:230px;width:100%;margin:auto}
+  .screen-next-grid,.screen-calls{grid-template-columns:1fr}
+  .screen-footer{padding:12px 14px;flex-direction:column}
+}
