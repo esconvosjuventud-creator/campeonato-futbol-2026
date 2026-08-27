@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <title>Pantalla en vivo | Campeonato 2026</title>
+  <link rel="stylesheet" href="css/operations.css">
+</head>
+<body class="screen-body">
+  <header class="screen-header">
+    <div>
+      <span>14.ª EDICIÓN · CAMPEONATO DE FÚTBOL</span>
+      <strong>QUE EN TU EQUIPO NO JUEGUE LA VIOLENCIA</strong>
+    </div>
+    <div class="screen-clock">
+      <strong id="screenClock">--:--</strong>
+      <span id="screenDate">--</span>
+    </div>
+  </header>
+
+  <main class="screen-main">
+    <section id="screenError" class="screen-message hidden"></section>
+
+    <section id="screenLive" class="screen-live">
+      <div class="screen-label">EN JUEGO</div>
+      <div class="screen-live-content">
+        <div class="screen-placeholder">Esperando información de la jornada…</div>
+      </div>
+    </section>
+
+    <section class="screen-next-section">
+      <div class="screen-section-title">
+        <span>PRÓXIMOS PARTIDOS</span>
+        <small>Actualización automática</small>
+      </div>
+      <div id="screenNext" class="screen-next-grid"></div>
+    </section>
+
+    <section class="screen-calls-section">
+      <div class="screen-section-title">
+        <span>📣 LLAMADOS A CANCHA</span>
+      </div>
+      <div id="screenCalls" class="screen-calls"></div>
+    </section>
+  </main>
+
+  <footer class="screen-footer">
+    <span id="screenUpdated">Actualizando…</span>
+    <strong>@esconvosjuventud</strong>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/screen.js"></script>
+</body>
+</html>

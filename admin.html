@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <title>Administración | Campeonato 2026</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/competition.css">
+  <link rel="stylesheet" href="css/stats.css">
+  <link rel="stylesheet" href="css/operations.css">
+</head>
+<body class="admin-body">
+  <header class="admin-hero">
+    <div><span class="eyebrow">ÁREA PRIVADA</span><h1>Administración Campeonato 2026</h1></div>
+    <div class="admin-hero-actions">
+      <a class="btn light admin-public-link" href="campeonato.html" target="_blank" rel="noopener noreferrer">🌐 Vista pública</a>
+      <button id="logoutBtn" class="btn light hidden" type="button">Cerrar sesión</button>
+    </div>
+  </header>
+  <main class="container wide">
+    <section id="configError" class="alert danger hidden"></section>
+
+    <section id="loginCard" class="card narrow">
+      <h2>Ingresar</h2>
+      <p class="help">Acceso exclusivo para usuarios autorizados por la organización.</p>
+      <form id="loginForm">
+        <div class="grid">
+          <label>Correo electrónico<input id="loginEmail" type="email" required></label>
+          <label>Contraseña<input id="loginPassword" type="password" required></label>
+        </div>
+        <div id="loginError" class="alert danger hidden"></div>
+        <button class="btn primary full" type="submit">Ingresar</button>
+      </form>
+    </section>
+
+    <section id="adminPanel" class="hidden">
+      <nav class="admin-tabs" aria-label="Secciones de administración">
+        <button id="teamsTabBtn" class="admin-tab active" type="button">
+          👥 Inscripciones
+        </button>
+        <button id="fixtureTabBtn" class="admin-tab" type="button">
+          🏆 Habilitación y fixture
+        </button>
+        <button id="competitionTabBtn" class="admin-tab" type="button">
+          📊 Posiciones y definición
+        </button>
+        <button id="statsTabBtn" class="admin-tab" type="button">
+          ⚽ Estadísticas y disciplina
+        </button>
+        <button id="operationsTabBtn" class="admin-tab" type="button">
+          ⏱️ Jornada y pantalla
+        </button>
+      </nav>
+
+      <section id="teamsAdminView">
+        <div class="stats" id="stats"></div>
+        <section class="card">
+          <div class="toolbar">
+            <select id="categoryFilter">
+              <option value="">Todas las categorías</option>
+              <option value="M13-15">Masculino 13–15</option>
+              <option value="M16-22">Masculino 16–22</option>
+              <option value="F-LIBRE">Femenino Libre</option>
+            </select>
+            <select id="statusFilter">
+              <option value="">Todos los estados</option>
+              <option>Pendiente</option><option>En revisión</option><option>Confirmado</option><option>Observado</option><option>Rechazado</option>
+            </select>
+            <input id="searchBox" placeholder="Buscar equipo, participante, cédula o número...">
+            <button id="refreshBtn" class="btn dark" type="button">Actualizar</button>
+            <button id="exportBtn" class="btn light" type="button">Exportar CSV</button>
+          </div>
+          <div id="teamsList"></div>
+        </section>
+      </section>
+
+      <section id="fixtureAdminView" class="hidden">
+        <section class="fixture-intro card">
+          <div>
+            <span class="fixture-kicker">ETAPA 2 · ORGANIZACIÓN DEPORTIVA</span>
+            <h2>Habilitación de equipos y fixture</h2>
+            <p>
+              El sistema revisa los requisitos de cada cuadro y solo permite generar
+              partidos con equipos habilitados.
+            </p>
+          </div>
+
+          <label class="fixture-date-field">
+            Fecha de inicio del campeonato
+            <input id="fixtureCompetitionDate" type="date">
+            <small>Se usa para comprobar la vigencia del carné de aptitud física.</small>
+          </label>
+        </section>
+
+        <div id="fixtureNotice" class="alert warning hidden"></div>
+
+        <section id="eligibilitySummary" class="fixture-category-grid"></section>
+
+        <section class="card fixture-saved-section">
+          <div class="section-head">
+            <div>
+              <span class="fixture-kicker">FIXTURES GUARDADOS</span>
+              <h2>Partidos del campeonato</h2>
+              <p class="help">Podés completar fecha, hora, cancha y resultados después de generar el fixture.</p>
+            </div>
+            <button id="reloadFixturesBtn" class="btn light" type="button">Actualizar fixtures</button>
+          </div>
+          <div id="savedFixtures"></div>
+        </section>
+      </section>
+
+      <section id="competitionAdminView" class="hidden">
+        <section class="competition-intro card">
+          <div>
+            <span class="competition-kicker">ETAPA 3 · COMPETENCIA</span>
+            <h2>Resultados, posiciones y definición</h2>
+            <p>
+              Las tablas se calculan automáticamente a partir de los partidos marcados como
+              <strong>Jugado</strong>. Cuando termina la fase regular, podés generar la definición.
+            </p>
+          </div>
+          <button id="reloadCompetitionBtn" class="btn light" type="button">Actualizar datos</button>
+        </section>
+
+        <div id="competitionNotice" class="alert warning hidden"></div>
+
+        <section id="standingsCategories" class="competition-categories"></section>
+
+        <section class="card playoffs-admin-card">
+          <div class="section-head">
+            <div>
+              <span class="competition-kicker">DEFINICIONES GUARDADAS</span>
+              <h2>Semifinales y finales</h2>
+              <p class="help">
+                Los cruces se generan desde la tabla: Top 2 = Final directa; Top 4 = 1.º vs 4.º y 2.º vs 3.º.
+              </p>
+            </div>
+            <button id="reloadPlayoffsBtn" class="btn light" type="button">Actualizar</button>
+          </div>
+          <div id="playoffsAdminList"></div>
+        </section>
+      </section>
+
+      <section id="statsAdminView" class="hidden">
+        <section class="stats-admin-intro card">
+          <div>
+            <span class="stats-kicker">ETAPA 4 · SEGUIMIENTO DEL CAMPEONATO</span>
+            <h2>Estadísticas y disciplina</h2>
+            <p>
+              Registrá goles, tarjetas y sanciones. El sistema calcula goleadores,
+              disciplina por equipo y reconoce campeón/subcampeón cuando se define la final.
+            </p>
+          </div>
+          <button id="reloadStatsBtn" class="btn light" type="button">Actualizar datos</button>
+        </section>
+
+        <div id="statsNotice" class="alert warning hidden"></div>
+
+        <section class="stats-admin-grid">
+          <article class="card">
+            <div class="section-head">
+              <div>
+                <span class="stats-kicker">EVENTOS DEL PARTIDO</span>
+                <h2>Registrar gol o tarjeta</h2>
+                <p class="help">Elegí primero el partido. Luego solo aparecerán jugadores de los equipos que participan.</p>
+              </div>
+            </div>
+
+            <div class="stats-form-grid">
+              <label>
+                Categoría
+                <select id="statsCategory">
+                  <option value="M13-15">Masculino 13–15</option>
+                  <option value="M16-22">Masculino 16–22</option>
+                  <option value="F-LIBRE">Femenino Libre</option>
+                </select>
+              </label>
+
+              <label class="stats-wide">
+                Partido
+                <select id="statsMatch"></select>
+              </label>
+
+              <label>
+                Jugador/a
+                <select id="statsParticipant"></select>
+              </label>
+
+              <label>
+                Evento
+                <select id="statsEventType">
+                  <option value="GOAL">⚽ Gol</option>
+                  <option value="YELLOW">🟨 Tarjeta amarilla</option>
+                  <option value="BLUE">🟦 Tarjeta azul</option>
+                  <option value="RED">🟥 Tarjeta roja</option>
+                </select>
+              </label>
+
+              <label>
+                Cantidad
+                <input id="statsEventQuantity" type="number" min="1" max="20" value="1">
+                <small>Para goles podés cargar varios de una vez.</small>
+              </label>
+
+              <label>
+                Minuto (opcional)
+                <input id="statsEventMinute" type="number" min="0" max="120" placeholder="Ej.: 12">
+              </label>
+
+              <label class="stats-wide">
+                Observación (opcional)
+                <input id="statsEventNotes" maxlength="200" placeholder="Ej.: doble amarilla, incidencia, aclaración...">
+              </label>
+            </div>
+
+            <button id="addMatchEventBtn" class="btn primary stats-full-btn" type="button">
+              Guardar evento
+            </button>
+          </article>
+
+          <article class="card">
+            <div class="section-head">
+              <div>
+                <span class="stats-kicker">DISCIPLINA</span>
+                <h2>Registrar sanción</h2>
+                <p class="help">La tarjeta roja no crea una suspensión automática: la organización define la sanción según corresponda.</p>
+              </div>
+            </div>
+
+            <div class="stats-form-grid">
+              <label>
+                Categoría
+                <select id="sanctionCategory">
+                  <option value="M13-15">Masculino 13–15</option>
+                  <option value="M16-22">Masculino 16–22</option>
+                  <option value="F-LIBRE">Femenino Libre</option>
+                </select>
+              </label>
+
+              <label>
+                Jugador/a
+                <select id="sanctionParticipant"></select>
+              </label>
+
+              <label class="stats-wide">
+                Motivo
+                <input id="sanctionReason" maxlength="180" placeholder="Ej.: expulsión por conducta antideportiva">
+              </label>
+
+              <label>
+                Partidos de suspensión
+                <input id="sanctionMatches" type="number" min="0" max="99" value="1">
+              </label>
+
+              <label>
+                Estado
+                <select id="sanctionStatus">
+                  <option>Activa</option>
+                  <option>Cumplida</option>
+                  <option>Anulada</option>
+                </select>
+              </label>
+
+              <label class="stats-wide">
+                Observaciones
+                <textarea id="sanctionNotes" maxlength="500" placeholder="Detalle interno de la organización"></textarea>
+              </label>
+            </div>
+
+            <button id="addSanctionBtn" class="btn dark stats-full-btn" type="button">
+              Guardar sanción
+            </button>
+          </article>
+        </section>
+
+        <section id="statsCategorySummary" class="stats-category-summary"></section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <span class="stats-kicker">REGISTRO</span>
+              <h2>Eventos y sanciones</h2>
+            </div>
+          </div>
+
+          <div class="stats-log-tabs">
+            <button id="eventsLogTab" class="stats-log-tab active" type="button">Eventos</button>
+            <button id="sanctionsLogTab" class="stats-log-tab" type="button">Sanciones</button>
+          </div>
+
+          <div id="eventsLog"></div>
+          <div id="sanctionsLog" class="hidden"></div>
+        </section>
+      </section>
+
+      <section id="operationsAdminView" class="hidden">
+        <section class="operations-intro card">
+          <div>
+            <span class="operations-kicker">ETAPA 5 · OPERATIVA DEL DÍA</span>
+            <h2>Cronograma, canchas y pantalla en vivo</h2>
+            <p>
+              Generá horarios automáticos respetando el descanso mínimo entre partidos,
+              administrá llamados a cancha y mantené una pantalla pública con el partido actual y los próximos.
+            </p>
+          </div>
+
+          <div class="operations-intro-actions">
+            <a class="btn light" href="jornada.html" target="_blank" rel="noopener noreferrer">📅 Cronograma público</a>
+            <a class="btn dark" href="pantalla.html" target="_blank" rel="noopener noreferrer">📺 Abrir pantalla</a>
+          </div>
+        </section>
+
+        <div id="operationsNotice" class="alert warning hidden"></div>
+
+        <section class="operations-builder card">
+          <div class="section-head">
+            <div>
+              <span class="operations-kicker">GENERADOR DE JORNADA</span>
+              <h2>Crear cronograma automático</h2>
+              <p class="help">
+                Elegí qué partidos programar. El sistema asigna cancha y horario intentando respetar
+                el descanso mínimo de cada equipo.
+              </p>
+            </div>
+          </div>
+
+          <div class="operations-form-grid">
+            <label>
+              Nombre de la jornada
+              <input id="opDayTitle" maxlength="100" placeholder="Ej.: Jornada 1 · Fase regular">
+            </label>
+
+            <label>
+              Fecha
+              <input id="opDate" type="date">
+            </label>
+
+            <label>
+              Hora de inicio
+              <input id="opStartTime" type="time" value="09:00">
+            </label>
+
+            <label>
+              Categoría
+              <select id="opCategory">
+                <option value="ALL">Todas las categorías</option>
+                <option value="M13-15">Masculino 13–15</option>
+                <option value="M16-22">Masculino 16–22</option>
+                <option value="F-LIBRE">Femenino Libre</option>
+              </select>
+            </label>
+
+            <label>
+              Fase
+              <select id="opPhase">
+                <option value="FIXTURE">Fase regular</option>
+                <option value="PLAYOFF">Semifinales / Final</option>
+              </select>
+            </label>
+
+            <label>
+              Duración por partido (min.)
+              <input id="opMatchMinutes" type="number" min="5" max="180" value="30">
+            </label>
+
+            <label>
+              Cambio entre partidos (min.)
+              <input id="opGapMinutes" type="number" min="0" max="120" value="5">
+            </label>
+
+            <label>
+              Descanso mínimo por equipo (min.)
+              <input id="opRestMinutes" type="number" min="0" max="240" value="20">
+            </label>
+
+            <label>
+              Llamado previo (min.)
+              <input id="opCallMinutes" type="number" min="0" max="120" value="10">
+            </label>
+
+            <label class="operations-wide">
+              Canchas
+              <input id="opCourts" value="Cancha 1, Cancha 2" placeholder="Separadas por coma">
+              <small>Ejemplo: Cancha 1, Cancha 2, Cancha 3</small>
+            </label>
+          </div>
+
+          <div class="operations-builder-foot">
+            <div id="operationsPreviewInfo" class="operations-preview-info">
+              Seleccioná fecha, categoría y fase para ver cuántos partidos faltan programar.
+            </div>
+            <button id="generateOperationDayBtn" class="btn primary" type="button">
+              Generar jornada
+            </button>
+          </div>
+        </section>
+
+        <section class="card operations-days-card">
+          <div class="section-head">
+            <div>
+              <span class="operations-kicker">CONTROL OPERATIVO</span>
+              <h2>Jornadas creadas</h2>
+              <p class="help">
+                Publicá una jornada para mostrarla en las páginas públicas. Durante el evento podés cambiar
+                el estado de cada partido y actualizar el resultado.
+              </p>
+            </div>
+            <button id="reloadOperationsBtn" class="btn light" type="button">Actualizar</button>
+          </div>
+
+          <div id="operationDaysList"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="teamDialog">
+    <div class="dialog-head"><h2 id="dialogTitle">Equipo</h2><button id="closeDialog" class="icon-btn" aria-label="Cerrar">×</button></div>
+    <div id="dialogContent"></div>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/fixture.js"></script>
+  <script src="js/competition.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/operations.js"></script>
+</body>
+</html>
