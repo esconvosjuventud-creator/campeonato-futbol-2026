@@ -127,7 +127,20 @@
     $("formCard").classList.add("hidden"); $("sendingCard").classList.remove("hidden"); $("uploadProgress").textContent="Creando inscripción segura...";
     let draft=null;
     try{
-      const {data,error}=await client.rpc("create_registration_draft",{payload:payload()}); if(error) throw error; draft=data;
+      // Generar identificadores nuevos en cada intento de envío.
+  // Evita colisiones si un intento anterior quedó incompleto.
+  players = players.map(p => ({
+    ...p,
+    id: uuid()
+  }));
+
+  const {data,error}=await client.rpc(
+    "create_registration_draft",
+    {payload:payload()}
+  );
+
+  if(error) throw error;
+  draft=data;;
       const docs=[]; let done=0,total=players.length*2;
       for(const p of players){
         for(const [kind,file] of [["CEDULA",p.ciFile],["APTITUD",p.fitnessFile]]){
