@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6b174f">
+  <title>Cierre y premiación | Campeonato 2026</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/closing.css">
+</head>
+<body class="public-closing-body">
+  <header class="public-closing-hero">
+    <div class="public-closing-hero-inner">
+      <nav class="public-closing-nav">
+        <a href="index.html">← Inscripción</a>
+        <a href="campeonato.html">Fixture y resultados</a>
+        <a href="estadisticas.html">Estadísticas</a>
+        <a href="jornada.html">Cronograma</a>
+      </nav>
+
+      <span class="public-closing-kicker">14.ª EDICIÓN · CAMPEONATO DE FÚTBOL</span>
+      <h1>Cierre y premiación</h1>
+      <p>Celebramos el deporte, el respeto, el compañerismo y el juego limpio.</p>
+
+      <div class="public-closing-actions">
+        <a href="https://www.instagram.com/esconvosjuventud/" target="_blank" rel="noopener noreferrer">@esconvosjuventud ↗</a>
+        <button id="publicClosingRefresh" type="button">Actualizar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="public-closing-container">
+    <section id="publicClosingError" class="public-closing-empty hidden"></section>
+
+    <section id="publicClosingMessage" class="public-closing-message hidden"></section>
+
+    <nav id="publicClosingTabs" class="public-closing-tabs" aria-label="Categorías"></nav>
+
+    <section id="publicClosingContent"></section>
+  </main>
+
+  <footer class="public-closing-footer">
+    <strong>Que en tu equipo no juegue la violencia</strong>
+    <span>Gracias por ser parte.</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/public-closing.js"></script>
+</body>
+</html>

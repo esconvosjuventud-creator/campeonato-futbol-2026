@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diploma | Campeonato 2026</title>
+  <link rel="stylesheet" href="css/closing.css">
+</head>
+<body class="diploma-body">
+  <div class="diploma-toolbar">
+    <a href="cierre.html">← Volver</a>
+    <button onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  </div>
+
+  <main id="diploma" class="diploma-sheet">
+    <div class="diploma-topline">14.ª EDICIÓN · CAMPEONATO DE FÚTBOL 2026</div>
+    <div class="diploma-ball">⚽</div>
+    <div class="diploma-kicker">RECONOCIMIENTO</div>
+    <h1 id="diplomaTitle">Diploma</h1>
+    <p class="diploma-given">Se otorga el presente reconocimiento a</p>
+    <strong id="diplomaName" class="diploma-name">—</strong>
+    <p id="diplomaCategory" class="diploma-category">—</p>
+    <p id="diplomaMessage" class="diploma-message">
+      Por su participación, compromiso y aporte a una competencia basada en el respeto y el juego limpio.
+    </p>
+
+    <div class="diploma-motto">“Que en tu equipo no juegue la violencia”</div>
+
+    <div class="diploma-signatures">
+      <div><span></span><strong>Organización</strong></div>
+      <div><span></span><strong>Campeonato 2026</strong></div>
+    </div>
+  </main>
+
+  <section id="diplomaError" class="diploma-error hidden"></section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/diploma.js"></script>
+</body>
+</html>

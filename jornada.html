@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#7b1553">
+  <title>Cronograma del día | Campeonato 2026</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/operations.css">
+</head>
+<body class="public-ops-body">
+  <header class="public-ops-hero">
+    <div class="public-ops-hero-inner">
+      <nav class="public-ops-nav">
+        <a href="index.html">← Inscripción</a>
+        <a href="campeonato.html">Fixture y resultados</a>
+        <a href="estadisticas.html">Estadísticas</a>
+        <a href="cierre.html">Premiación</a>
+      </nav>
+
+      <span class="public-ops-kicker">CAMPEONATO DE FÚTBOL 2026</span>
+      <h1>Cronograma de la jornada</h1>
+      <p>Horarios, canchas, llamados y estado de los partidos.</p>
+
+      <div class="public-ops-actions">
+        <a href="pantalla.html">📺 Ver pantalla en vivo</a>
+        <a href="https://www.instagram.com/esconvosjuventud/" target="_blank" rel="noopener noreferrer">@esconvosjuventud ↗</a>
+        <button id="publicOpsRefresh" type="button">Actualizar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="public-ops-container">
+    <div id="publicOpsError" class="public-ops-empty hidden"></div>
+
+    <section id="publicOpsToday" class="public-ops-now hidden"></section>
+
+    <nav id="publicOpsDayTabs" class="public-ops-day-tabs" aria-label="Jornadas"></nav>
+
+    <section id="publicOpsContent"></section>
+  </main>
+
+  <footer class="public-ops-footer">
+    <strong>Que en tu equipo no juegue la violencia</strong>
+    <span>Los horarios pueden modificarse por razones organizativas.</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/public-operations.js"></script>
+</body>
+</html>
