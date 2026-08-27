@@ -1,0 +1,560 @@
+/* ==========================================================
+   ETAPA 3 — COMPETENCIA / POSICIONES / PLAYOFFS
+   ========================================================== */
+
+.admin-hero-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.admin-public-link{
+  text-decoration:none;
+}
+
+.competition-intro{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:20px;
+  margin-bottom:14px;
+  border-left:5px solid #6e174d;
+}
+.competition-intro h2{
+  margin:4px 0 5px;
+}
+.competition-intro p{
+  max-width:760px;
+  margin:0;
+  color:var(--muted);
+  line-height:1.5;
+}
+.competition-kicker{
+  display:block;
+  color:#76164f;
+  font-size:.69rem;
+  font-weight:950;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.competition-categories{
+  display:grid;
+  gap:14px;
+}
+.standings-category-card{
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:#fff;
+  box-shadow:0 10px 25px rgba(0,0,0,.045);
+}
+.standings-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:13px;
+}
+.standings-card-head h3{
+  margin:3px 0 3px;
+}
+.league-progress{
+  flex:0 0 95px;
+  text-align:right;
+}
+.league-progress strong{
+  display:block;
+  color:#76164f;
+  font-size:1.35rem;
+}
+.league-progress span{
+  color:var(--muted);
+  font-size:.70rem;
+}
+.standings-scroll{
+  overflow-x:auto;
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+.standings-table{
+  width:100%;
+  min-width:710px;
+  border-collapse:collapse;
+  background:#fff;
+  font-size:.80rem;
+}
+.standings-table th,
+.standings-table td{
+  padding:9px 8px;
+  border-bottom:1px solid #edf0f2;
+  text-align:center;
+  white-space:nowrap;
+}
+.standings-table th{
+  color:#666e77;
+  background:#f6f7f8;
+  font-size:.70rem;
+  text-transform:uppercase;
+}
+.standings-table th:nth-child(2),
+.standings-table td:nth-child(2){
+  text-align:left;
+}
+.standings-table tbody tr:last-child td{
+  border-bottom:0;
+}
+.qualified-row{
+  background:#f1fbf5;
+}
+.position-badge{
+  display:inline-grid;
+  place-items:center;
+  width:27px;
+  height:27px;
+  border-radius:8px;
+  color:#fff;
+  background:#252525;
+  font-weight:950;
+}
+.qualified-row .position-badge{
+  background:#23814a;
+}
+.standings-foot{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:18px;
+  margin-top:12px;
+}
+.standings-foot>p{
+  max-width:570px;
+  margin:0;
+  color:var(--muted);
+  font-size:.75rem;
+}
+.qualification-controls{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+}
+.qualification-controls label{
+  min-width:190px;
+}
+.competition-hint{
+  margin-top:10px;
+  padding:9px 11px;
+  border-radius:10px;
+  color:#805514;
+  background:#fff7e7;
+  font-size:.75rem;
+}
+.playoffs-admin-card{
+  margin-top:14px;
+}
+.competition-empty{
+  min-height:160px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  color:var(--muted);
+  text-align:center;
+}
+.competition-empty>span{
+  font-size:2rem;
+}
+.competition-empty strong{
+  color:#333;
+}
+.playoff-card{
+  margin-top:15px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fafafa;
+  overflow:hidden;
+}
+.playoff-card-head{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:flex-start;
+  padding:15px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+}
+.playoff-card-head h3{
+  margin:3px 0 3px;
+}
+.playoff-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.playoff-bracket-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:14px;
+}
+.playoff-bracket-grid.final-only{
+  grid-template-columns:minmax(0,600px);
+  justify-content:center;
+}
+.playoff-match{
+  min-width:0;
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+}
+.playoff-stage{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:#76164f;
+  font-size:.72rem;
+  font-weight:950;
+  text-transform:uppercase;
+}
+.playoff-stage small{
+  color:var(--muted);
+  font-weight:700;
+}
+.playoff-teams{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  margin:12px 0;
+  text-align:center;
+}
+.playoff-teams span{
+  color:var(--muted);
+  font-size:.76rem;
+}
+.playoff-fields{
+  display:grid;
+  grid-template-columns:1fr 110px 1fr;
+  gap:7px;
+}
+.playoff-fields input,
+.playoff-fields select{
+  min-height:40px;
+  padding:8px;
+  font-size:.80rem;
+}
+.playoff-score{
+  display:grid;
+  grid-template-columns:1fr 14px 1fr;
+  gap:4px;
+  align-items:center;
+}
+.playoff-score input,
+.penalties-box input{
+  text-align:center;
+}
+.penalties-box{
+  display:grid;
+  grid-template-columns:auto 1fr 14px 1fr;
+  gap:4px;
+  align-items:center;
+  font-size:.70rem;
+}
+.playoff-fields .save-playoff-match{
+  grid-column:1/-1;
+}
+.winner-strip{
+  margin-top:9px;
+  padding:8px 10px;
+  border-radius:9px;
+  color:#17663b;
+  background:#eaf8ef;
+  font-size:.78rem;
+}
+
+/* ---------------- PUBLIC ---------------- */
+.public-competition-body{
+  margin:0;
+  background:#f4f5f7;
+  color:#171717;
+}
+.public-comp-hero{
+  color:#fff;
+  background:
+    radial-gradient(circle at 90% 10%,rgba(255,211,91,.20),transparent 22%),
+    linear-gradient(135deg,#741018,#b5121b 55%,#d64a18);
+}
+.public-comp-hero-inner{
+  max-width:1120px;
+  margin:0 auto;
+  padding:28px 18px 30px;
+}
+.public-back-link{
+  display:inline-block;
+  margin-bottom:18px;
+  color:rgba(255,255,255,.78);
+  text-decoration:none;
+  font-size:.82rem;
+}
+.public-comp-kicker{
+  display:block;
+  color:#ffd65b;
+  font-size:.75rem;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+.public-comp-hero h1{
+  margin:5px 0 4px;
+  font-size:clamp(2rem,6vw,4rem);
+  line-height:.95;
+}
+.public-comp-hero p{
+  margin:0;
+  font-size:1rem;
+  font-style:italic;
+}
+.public-comp-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:17px;
+}
+.public-comp-actions a,
+.public-comp-actions button{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:11px;
+  padding:9px 12px;
+  color:#fff;
+  background:rgba(255,255,255,.10);
+  text-decoration:none;
+  font:inherit;
+  font-size:.80rem;
+  font-weight:850;
+  cursor:pointer;
+}
+.public-comp-container{
+  max-width:1120px;
+  margin:20px auto;
+  padding:0 14px 30px;
+}
+.public-category-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:13px;
+}
+.public-category-tabs button{
+  min-height:42px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:9px 14px;
+  color:#555d66;
+  background:#fff;
+  font:inherit;
+  font-size:.82rem;
+  font-weight:850;
+  cursor:pointer;
+}
+.public-category-tabs button.active{
+  color:#fff;
+  background:#171717;
+  border-color:#171717;
+}
+.public-empty{
+  padding:25px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  text-align:center;
+  color:var(--muted);
+}
+.public-category-head{
+  margin-bottom:12px;
+}
+.public-category-head>span,
+.public-section-head>span{
+  color:#76164f;
+  font-size:.70rem;
+  font-weight:950;
+  letter-spacing:.10em;
+}
+.public-category-head h2,
+.public-section-head h2{
+  margin:3px 0 0;
+}
+.public-competition-grid{
+  display:grid;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  gap:12px;
+}
+.public-panel,
+.public-playoff{
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(0,0,0,.04);
+}
+.public-note{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:.70rem;
+}
+.public-rounds{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.public-round{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+.public-round h3{
+  margin:0;
+  padding:8px 11px;
+  color:#fff;
+  background:#262626;
+  font-size:.78rem;
+}
+.public-match{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  padding:10px;
+  border-top:1px solid var(--line);
+  text-align:center;
+  font-size:.80rem;
+}
+.public-round h3 + .public-match{
+  border-top:0;
+}
+.public-match small{
+  grid-column:1/-1;
+  color:var(--muted);
+  font-size:.68rem;
+}
+.public-score{
+  color:#76164f;
+  font-size:1rem;
+}
+.public-vs{
+  color:var(--muted);
+}
+.public-match.bye{
+  grid-template-columns:auto 1fr;
+  text-align:left;
+  background:#f5f6f7;
+}
+.public-match.bye span{
+  color:#fff;
+  background:#6c747c;
+  border-radius:7px;
+  padding:4px 7px;
+  font-size:.65rem;
+  font-weight:900;
+}
+.public-playoff{
+  margin-top:12px;
+}
+.public-playoff-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.public-playoff-grid.final-only{
+  grid-template-columns:minmax(0,520px);
+  justify-content:center;
+}
+.public-playoff-match{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fafafa;
+  text-align:center;
+}
+.public-playoff-match>span{
+  color:#76164f;
+  font-size:.68rem;
+  font-weight:950;
+  text-transform:uppercase;
+}
+.public-playoff-match>b{
+  font-size:1rem;
+}
+.public-playoff-match small{
+  color:var(--muted);
+  font-size:.68rem;
+}
+.public-playoff-match em{
+  padding:6px;
+  border-radius:8px;
+  color:#17663b;
+  background:#e8f7ee;
+  font-style:normal;
+  font-size:.75rem;
+  font-weight:850;
+}
+.public-playoff-match.final{
+  border-color:#e7c45d;
+  background:#fffaf0;
+}
+.public-comp-footer{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:20px;
+  color:#fff;
+  background:#171717;
+  font-size:.78rem;
+}
+
+@media(max-width:900px){
+  .competition-intro,
+  .standings-foot,
+  .playoff-card-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .public-competition-grid{
+    grid-template-columns:1fr;
+  }
+  .public-playoff-grid{
+    grid-template-columns:1fr;
+  }
+}
+@media(max-width:650px){
+  .qualification-controls,
+  .playoff-actions{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .qualification-controls label,
+  .qualification-controls .btn,
+  .playoff-actions select,
+  .playoff-actions .btn{
+    width:100%;
+  }
+  .playoff-bracket-grid{
+    grid-template-columns:1fr;
+  }
+  .playoff-fields{
+    grid-template-columns:1fr;
+  }
+  .public-match{
+    grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);
+  }
+}
