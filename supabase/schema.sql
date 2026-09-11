@@ -137,7 +137,7 @@ declare
   p_age int;
   p_ci text;
 begin
-  if (timezone('America/Montevideo', now())::date < date '2026-08-26') or (timezone('America/Montevideo', now())::date > date '2026-09-11') then
+  if (timezone('America/Montevideo', now())::date < date '2026-08-26') or (timezone('America/Montevideo', now())::date > date '2026-09-16') then
     raise exception 'El período de inscripción no está habilitado.';
   end if;
   if t is null or arr is null or jsonb_typeof(arr) <> 'array' then raise exception 'Datos incompletos.'; end if;

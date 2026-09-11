@@ -1,7 +1,7 @@
 (() => {
   "use strict";
   const START = new Date("2026-08-26T00:00:00-03:00");
-  const END = new Date("2026-09-11T23:59:59-03:00");
+  const END = new Date("2026-09-16T23:59:59-03:00");
   const AGE_REF = new Date("2026-09-11T12:00:00-03:00");
   const MIN = 5, MAX = 10, MAX_BYTES = 8 * 1024 * 1024;
   const DRAFT_KEY = "cf2026_github_draft_v3";
@@ -70,7 +70,7 @@
       setCountdownValues(0);
       $("countdownKicker").textContent="Inscripciones finalizadas";
       $("countdownTitle").textContent="El período de inscripción terminó";
-      $("countdownMessage").textContent="El plazo de inscripción finalizó el 11 de septiembre de 2026 a las 23:59.";
+      $("countdownMessage").textContent="El plazo de inscripción finalizó el 16 de septiembre de 2026 a las 23:59.";
       card.classList.remove("urgent");
       card.classList.add("closed");
       return;
@@ -80,7 +80,7 @@
     setCountdownValues(remaining);
     $("countdownKicker").textContent="Inscripciones abiertas";
     $("countdownTitle").textContent="Tiempo restante para inscribirse";
-    $("countdownMessage").textContent="Las inscripciones finalizan el 11 de septiembre de 2026 a las 23:59.";
+    $("countdownMessage").textContent="¡Plazo extendido! Las inscripciones finalizan el miércoles 16 de septiembre de 2026 a las 23:59. ¡No dejes a tu cuadro afuera!";
     card.classList.remove("closed");
     card.classList.toggle("urgent",remaining <= 48*60*60*1000);
   }
