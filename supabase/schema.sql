@@ -232,3 +232,69 @@ grant execute on function public.age_on_reference(date) to anon,authenticated;
 
 -- RECOMENDACIÓN: crear un usuario en Authentication > Users y después ejecutar:
 -- insert into public.admin_users(user_id, display_name) values ('UUID_DEL_USUARIO', 'Organización');
+
+
+-- ============================================================
+-- ADMINISTRACIÓN: BORRAR EQUIPOS Y AGREGAR JUGADORES
+-- ============================================================
+
+create or replace function public.admin_delete_team(p_team_id uuid)
+returns void language plpgsql security definer set search_path = ''
+as $$
+begin
+  if not public.is_admin() then raise exception 'Acceso administrativo requerido.'; end if;
+  if not exists (select 1 from public.teams where id=p_team_id) then raise exception 'El equipo no existe.'; end if;
+  if exists (
+    select 1 from public.fixture_matches where team_a_id=p_team_id or team_b_id=p_team_id
+    union all select 1 from public.playoff_matches where team_a_id=p_team_id or team_b_id=p_team_id or winner_team_id=p_team_id
+    union all select 1 from public.match_events where team_id=p_team_id
+    union all select 1 from public.sanctions where team_id=p_team_id
+    union all select 1 from public.championship_awards where team_id=p_team_id
+  ) then
+    raise exception 'No se puede borrar: el equipo ya está utilizado en fixture, resultados, sanciones o premiación.';
+  end if;
+  delete from storage.objects where bucket_id='documentos' and name in (
+    select d.storage_path from public.documents d
+    join public.participants p on p.id=d.participant_id where p.team_id=p_team_id
+  );
+  delete from public.teams where id=p_team_id;
+end;
+$$;
+revoke all on function public.admin_delete_team(uuid) from public, anon;
+grant execute on function public.admin_delete_team(uuid) to authenticated;
+
+create or replace function public.admin_add_participant(p_team_id uuid,p_data jsonb)
+returns uuid language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_team public.teams%rowtype; v_id uuid:=gen_random_uuid(); v_ci text;
+  v_birth date; v_expiry date; v_age integer;
+begin
+  if not public.is_admin() then raise exception 'Acceso administrativo requerido.'; end if;
+  select * into v_team from public.teams where id=p_team_id and is_submitted=true;
+  if not found then raise exception 'El equipo no existe o no está confirmado.'; end if;
+  if (select count(*) from public.participants where team_id=p_team_id)>=10 then raise exception 'El equipo ya tiene el máximo de 10 jugadores.'; end if;
+  v_ci:=regexp_replace(coalesce(p_data->>'ci',''),'[^0-9]','','g');
+  if nullif(trim(p_data->>'first_name'),'') is null or nullif(trim(p_data->>'last_name'),'') is null
+    or nullif(v_ci,'') is null or nullif(p_data->>'birth_date','') is null
+    or nullif(trim(p_data->>'contact_phone'),'') is null or nullif(p_data->>'fitness_expiry','') is null
+  then raise exception 'Completá todos los campos obligatorios.'; end if;
+  v_birth:=(p_data->>'birth_date')::date; v_expiry:=(p_data->>'fitness_expiry')::date;
+  v_age:=extract(year from age(date '2026-09-11',v_birth))::integer;
+  if v_team.category='M13-15' and (v_age<13 or v_age>15) then raise exception 'La edad no corresponde a la categoría Masculino 13–15.'; end if;
+  if v_team.category='M16-22' and (v_age<16 or v_age>22) then raise exception 'La edad no corresponde a la categoría Masculino 16–22.'; end if;
+  if exists(select 1 from public.participants where team_id=p_team_id and ci=v_ci) then raise exception 'Ya existe un jugador con esa cédula en el equipo.'; end if;
+  insert into public.participants(
+    id,team_id,first_name,last_name,ci,birth_date,phone,contact_phone,email,
+    fitness_expiry,participation_consent,image_consent,document_status,admin_notes
+  ) values (
+    v_id,p_team_id,trim(p_data->>'first_name'),trim(p_data->>'last_name'),v_ci,v_birth,
+    nullif(trim(p_data->>'phone'),''),trim(p_data->>'contact_phone'),
+    nullif(lower(trim(p_data->>'email')),''),v_expiry,true,false,
+    'Documentación faltante','Jugador cargado manualmente desde Administración.'
+  );
+  return v_id;
+end;
+$$;
+revoke all on function public.admin_add_participant(uuid,jsonb) from public, anon;
+grant execute on function public.admin_add_participant(uuid,jsonb) to authenticated;
