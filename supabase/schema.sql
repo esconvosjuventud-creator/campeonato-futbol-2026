@@ -238,29 +238,38 @@ grant execute on function public.age_on_reference(date) to anon,authenticated;
 -- ADMINISTRACIÓN: BORRAR EQUIPOS Y AGREGAR JUGADORES
 -- ============================================================
 
-create or replace function public.admin_delete_team(p_team_id uuid)
-returns void language plpgsql security definer set search_path = ''
-as $$
+create or replace function public.admin_team_delete_paths(p_team_id uuid)
+returns text[] language plpgsql security definer set search_path = ''
+as $
+declare v_paths text[];
 begin
   if not public.is_admin() then raise exception 'Acceso administrativo requerido.'; end if;
-  if not exists (select 1 from public.teams where id=p_team_id) then raise exception 'El equipo no existe.'; end if;
-  if exists (
+  if not exists(select 1 from public.teams where id=p_team_id) then raise exception 'El equipo no existe.'; end if;
+  if exists(
     select 1 from public.fixture_matches where team_a_id=p_team_id or team_b_id=p_team_id
     union all select 1 from public.playoff_matches where team_a_id=p_team_id or team_b_id=p_team_id or winner_team_id=p_team_id
     union all select 1 from public.match_events where team_id=p_team_id
     union all select 1 from public.sanctions where team_id=p_team_id
     union all select 1 from public.championship_awards where team_id=p_team_id
-  ) then
-    raise exception 'No se puede borrar: el equipo ya está utilizado en fixture, resultados, sanciones o premiación.';
-  end if;
-  delete from storage.objects where bucket_id='documentos' and name in (
-    select d.storage_path from public.documents d
-    join public.participants p on p.id=d.participant_id where p.team_id=p_team_id
-  );
+  ) then raise exception 'No se puede borrar: el equipo ya está utilizado en fixture, resultados, sanciones o premiación.'; end if;
+  select coalesce(array_agg(d.storage_path),array[]::text[]) into v_paths
+  from public.documents d join public.participants p on p.id=d.participant_id
+  where p.team_id=p_team_id;
+  return v_paths;
+end;
+$;
+revoke all on function public.admin_team_delete_paths(uuid) from public,anon;
+grant execute on function public.admin_team_delete_paths(uuid) to authenticated;
+
+create or replace function public.admin_delete_team(p_team_id uuid)
+returns void language plpgsql security definer set search_path=''
+as $
+begin
+  perform public.admin_team_delete_paths(p_team_id);
   delete from public.teams where id=p_team_id;
 end;
-$$;
-revoke all on function public.admin_delete_team(uuid) from public, anon;
+$;
+revoke all on function public.admin_delete_team(uuid) from public,anon;
 grant execute on function public.admin_delete_team(uuid) to authenticated;
 
 create or replace function public.admin_add_participant(p_team_id uuid,p_data jsonb)
