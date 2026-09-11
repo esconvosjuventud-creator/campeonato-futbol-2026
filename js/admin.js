@@ -360,6 +360,31 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
         Guardar estado
       </button>
 
+      <section class="card" style="margin-top:1rem">
+        <h3>Administrar equipo</h3>
+        <p class="small">Podés agregar un jugador o eliminar una inscripción incorrecta.</p>
+        <div class="toolbar">
+          <button id="toggleAddPlayer" class="btn dark" type="button">➕ Agregar jugador</button>
+          <button id="deleteTeamBtn" class="btn danger" type="button">🗑️ Borrar equipo</button>
+        </div>
+
+        <form id="addPlayerForm" class="hidden" style="margin-top:1rem">
+          <div class="grid two">
+            <label>Nombre *<input id="newFirstName" required maxlength="80"></label>
+            <label>Apellidos *<input id="newLastName" required maxlength="100"></label>
+            <label>Cédula *<input id="newCi" required inputmode="numeric" maxlength="20"></label>
+            <label>Fecha de nacimiento *<input id="newBirth" required type="date"></label>
+            <label>Teléfono personal<input id="newPhone" inputmode="tel" maxlength="30"></label>
+            <label>Teléfono de contacto *<input id="newContactPhone" required inputmode="tel" maxlength="30"></label>
+            <label>Correo electrónico<input id="newEmail" type="email" maxlength="160"></label>
+            <label>Vencimiento del carné *<input id="newFitnessExpiry" required type="date"></label>
+          </div>
+          <p class="small">El jugador se cargará con estado “Documentación faltante”.</p>
+          <div id="addPlayerError" class="alert danger hidden"></div>
+          <button class="btn primary" type="submit">Guardar jugador</button>
+        </form>
+      </section>
+
       <hr>
 
       ${(t.participants || []).map((p, i) => `
@@ -433,6 +458,62 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
         await loadTeams();
         $("teamDialog").close();
       }
+    };
+
+    $("toggleAddPlayer").onclick = () => {
+      $("addPlayerForm").classList.toggle("hidden");
+    };
+
+    $("addPlayerForm").onsubmit = async event => {
+      event.preventDefault();
+      $("addPlayerError").classList.add("hidden");
+
+      const payload = {
+        first_name: $("newFirstName").value,
+        last_name: $("newLastName").value,
+        ci: $("newCi").value,
+        birth_date: $("newBirth").value,
+        phone: $("newPhone").value,
+        contact_phone: $("newContactPhone").value,
+        email: $("newEmail").value,
+        fitness_expiry: $("newFitnessExpiry").value
+      };
+
+      const { error } = await client.rpc("admin_add_participant", {
+        p_team_id: t.id,
+        p_data: payload
+      });
+
+      if (error) {
+        $("addPlayerError").textContent = error.message;
+        $("addPlayerError").classList.remove("hidden");
+        return;
+      }
+
+      await loadTeams();
+      $("teamDialog").close();
+      alert("Jugador agregado. Quedó marcado con documentación faltante.");
+    };
+
+    $("deleteTeamBtn").onclick = async () => {
+      const confirmation = prompt(
+        `Esta acción borrará definitivamente la inscripción de "${t.team_name}" y sus documentos. Para confirmar, escribí BORRAR.`
+      );
+
+      if (confirmation !== "BORRAR") return;
+
+      const { error } = await client.rpc("admin_delete_team", {
+        p_team_id: t.id
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      $("teamDialog").close();
+      await loadTeams();
+      alert("El equipo fue eliminado.");
     };
   }
 
