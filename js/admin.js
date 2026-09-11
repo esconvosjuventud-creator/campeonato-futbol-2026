@@ -52,15 +52,19 @@
     return !error && data === true;
   }
 
-  async function syncSession() {
-    const { data: { session } } = await client.auth.getSession();
+  async function hasValidIdentity() {
+    const { data, error } = await client.auth.getClaims();
+    return !error && Boolean(data?.claims?.sub);
+  }
 
-    if (session && await isAdmin()) {
+  async function syncSession() {
+    if (await hasValidIdentity() && await isAdmin()) {
       showPanel();
       await loadTeams();
-    } else {
-      showLogin();
+      return;
     }
+
+    showLogin();
   }
 
   function showLogin() {
@@ -573,6 +577,10 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
   $("closeDialog").addEventListener("click", () => $("teamDialog").close());
 
   if (init()) {
+    client.auth.onAuthStateChange(() => {
+      // Run after the auth callback finishes to avoid competing with token storage.
+      queueMicrotask(syncSession);
+    });
     syncSession();
   }
 })();
