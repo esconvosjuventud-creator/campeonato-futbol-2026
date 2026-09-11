@@ -4,6 +4,7 @@
   const $ = id => document.getElementById(id);
   let client = null;
   let allTeams = [];
+  let staffProfile = null;
 
   const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
     "&": "&amp;",
@@ -47,9 +48,10 @@
     return true;
   }
 
-  async function isAdmin() {
-    const { data, error } = await client.rpc("is_admin");
-    return !error && data === true;
+  async function getStaffProfile() {
+    const { data, error } = await client.rpc("get_my_staff_profile");
+    if (error || !data) return null;
+    return Array.isArray(data) ? data[0] : data;
   }
 
   async function hasValidIdentity() {
@@ -58,25 +60,47 @@
   }
 
   async function syncSession() {
-    if (await hasValidIdentity() && await isAdmin()) {
-      showPanel();
-      await loadTeams();
-      return;
+    if (await hasValidIdentity()) {
+      staffProfile = await getStaffProfile();
+      if (staffProfile) {
+        if (staffProfile.must_change_password) {
+          showPasswordChange();
+        } else {
+          showPanel();
+          await loadTeams();
+        }
+        return;
+      }
     }
 
     showLogin();
   }
 
   function showLogin() {
+    staffProfile = null;
     $("loginCard").classList.remove("hidden");
+    $("passwordChangeCard").classList.add("hidden");
     $("adminPanel").classList.add("hidden");
     $("logoutBtn").classList.add("hidden");
   }
 
+  function showPasswordChange() {
+    $("loginCard").classList.add("hidden");
+    $("passwordChangeCard").classList.remove("hidden");
+    $("adminPanel").classList.add("hidden");
+    $("logoutBtn").classList.remove("hidden");
+  }
+
   function showPanel() {
     $("loginCard").classList.add("hidden");
+    $("passwordChangeCard").classList.add("hidden");
     $("adminPanel").classList.remove("hidden");
     $("logoutBtn").classList.remove("hidden");
+
+    const documentOnly = staffProfile?.role === "DOCUMENT_REVIEWER";
+    $("exportBtn").classList.toggle("hidden", documentOnly);
+    $("categoryFilter").classList.toggle("hidden", documentOnly);
+    $("statusFilter").classList.toggle("hidden", documentOnly);
   }
 
   async function loadTeams() {
@@ -446,6 +470,11 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
 
     $("teamDialog").showModal();
 
+    const canManageSports = ["ADMIN", "SPORTS_EDITOR"].includes(staffProfile?.role);
+    $("saveTeamStatus").classList.toggle("hidden", !canManageSports);
+    $("toggleAddPlayer").classList.toggle("hidden", !canManageSports);
+    $("deleteTeamBtn").classList.toggle("hidden", staffProfile?.role !== "ADMIN");
+
     $("saveTeamStatus").onclick = async () => {
       const { error } = await client
         .from("teams")
@@ -535,13 +564,11 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
     const st = document.querySelector(`.doc-status[data-pid="${pid}"]`).value;
     const notes = document.querySelector(`.doc-notes[data-pid="${pid}"]`).value;
 
-    const { error } = await client
-      .from("participants")
-      .update({
-        document_status: st,
-        admin_notes: notes
-      })
-      .eq("id", pid);
+    const { error } = await client.rpc("review_participant_document", {
+      p_participant_id: pid,
+      p_document_status: st,
+      p_admin_notes: notes
+    });
 
     if (error) {
       alert(error.message);
@@ -623,8 +650,11 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
     e.preventDefault();
     $("loginError").classList.add("hidden");
 
+    const login = $("loginEmail").value.trim().toLowerCase();
+    const email = login.includes("@") ? login : `${login}@campeonato.local`;
+
     const { error } = await client.auth.signInWithPassword({
-      email: $("loginEmail").value,
+      email,
       password: $("loginPassword").value
     });
 
@@ -634,13 +664,50 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
       return;
     }
 
-    if (!await isAdmin()) {
+    staffProfile = await getStaffProfile();
+    if (!staffProfile) {
       await client.auth.signOut();
-      $("loginError").textContent = "El usuario existe, pero no tiene permisos administrativos.";
+      $("loginError").textContent = "El usuario existe, pero no tiene permisos para este panel.";
       $("loginError").classList.remove("hidden");
       return;
     }
 
+    if (staffProfile.must_change_password) {
+      showPasswordChange();
+    } else {
+      showPanel();
+      await loadTeams();
+    }
+  });
+
+  $("passwordChangeForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const nextPassword = $("newPassword").value;
+    const confirmation = $("confirmPassword").value;
+    $("passwordChangeError").classList.add("hidden");
+
+    if (nextPassword.length < 8 || nextPassword !== confirmation) {
+      $("passwordChangeError").textContent = "Las contraseñas deben coincidir y tener al menos 8 caracteres.";
+      $("passwordChangeError").classList.remove("hidden");
+      return;
+    }
+
+    const { error: passwordError } = await client.auth.updateUser({ password: nextPassword });
+    if (passwordError) {
+      $("passwordChangeError").textContent = passwordError.message;
+      $("passwordChangeError").classList.remove("hidden");
+      return;
+    }
+
+    const { error: profileError } = await client.rpc("finish_password_change");
+    if (profileError) {
+      $("passwordChangeError").textContent = profileError.message;
+      $("passwordChangeError").classList.remove("hidden");
+      return;
+    }
+
+    staffProfile.must_change_password = false;
+    $("passwordChangeForm").reset();
     showPanel();
     await loadTeams();
   });
