@@ -502,12 +502,12 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
 
       if (confirmation !== "BORRAR") return;
 
-      const { error } = await client.rpc("admin_delete_team", {
-        p_team_id: t.id
+      const { data, error } = await client.functions.invoke("admin-delete-team", {
+        body: { team_id: t.id }
       });
 
-      if (error) {
-        alert(error.message);
+      if (error || data?.error) {
+        alert(data?.error || error?.message || "No se pudo borrar el equipo.");
         return;
       }
 
