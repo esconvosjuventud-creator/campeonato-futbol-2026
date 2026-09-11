@@ -566,8 +566,8 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
 
     const { error } = await client.rpc("review_participant_document", {
       p_participant_id: pid,
-      p_document_status: st,
-      p_admin_notes: notes
+      p_status: st,
+      p_notes: notes
     });
 
     if (error) {

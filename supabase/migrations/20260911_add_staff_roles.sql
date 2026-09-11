@@ -59,8 +59,8 @@ $$;
 
 create or replace function public.review_participant_document(
   p_participant_id uuid,
-  p_document_status text,
-  p_admin_notes text
+  p_status text,
+  p_notes text
 ) returns void language plpgsql security definer set search_path = public
 as $$
 begin
@@ -69,8 +69,8 @@ begin
   end if;
 
   update public.participants
-  set document_status = p_document_status,
-      admin_notes = p_admin_notes
+  set document_status = p_status,
+      admin_notes = p_notes
   where id = p_participant_id;
 end;
 $$;
