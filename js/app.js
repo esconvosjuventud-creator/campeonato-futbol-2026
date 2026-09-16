@@ -43,6 +43,54 @@
     return true;
   }
 
+  function prepareFourStepUI(){
+    if(document.body.dataset.registrationFourSteps === "ready") return;
+    document.body.dataset.registrationFourSteps = "ready";
+
+    const welcomeParagraph = document.querySelector(".youth-welcome p");
+    if(welcomeParagraph){
+      welcomeParagraph.innerHTML = welcomeParagraph.innerHTML.replace("completá los 5 pasos", "completá los 4 pasos");
+    }
+
+    const journey = document.querySelector(".journey");
+    if(journey){
+      const journeySteps = [...journey.querySelectorAll(".journey-step")];
+      const permissionsStep = journeySteps.find(step => step.querySelector(".journey-number")?.textContent.trim() === "4");
+      if(permissionsStep) permissionsStep.remove();
+      const finalJourneyStep = [...journey.querySelectorAll(".journey-step")].find(step => step.querySelector(".journey-number")?.textContent.trim() === "5");
+      if(finalJourneyStep){
+        const number = finalJourneyStep.querySelector(".journey-number");
+        if(number) number.textContent = "4";
+      }
+      const playerJourneyStep = [...journey.querySelectorAll(".journey-step")].find(step => step.querySelector(".journey-number")?.textContent.trim() === "2");
+      const playerDescription = playerJourneyStep?.querySelector("small");
+      if(playerDescription) playerDescription.textContent = "Datos y autorizaciones";
+      journey.style.gridTemplateColumns = "repeat(4,minmax(0,1fr))";
+    }
+
+    const step2 = document.querySelector('.step[data-step="2"]');
+    const oldStep4 = document.querySelector('.step[data-step="4"]');
+    const oldStep5 = document.querySelector('.step[data-step="5"]');
+
+    if(step2 && oldStep4 && oldStep5){
+      const authorizations = oldStep4.querySelector("#authorizations");
+      if(authorizations){
+        const authWrap = document.createElement("div");
+        authWrap.style.marginTop = "22px";
+        authWrap.style.paddingTop = "18px";
+        authWrap.style.borderTop = "2px dashed #e3e6ea";
+        authWrap.innerHTML = `<div class="step-heading compact"><span class="step-emoji" aria-hidden="true">✍️</span><div><span class="step-kicker">AUTORIZACIONES</span><h2>Permisos necesarios</h2><p class="help">Si hay menores de 18 años, completá los datos del adulto responsable. Para cada integrante indicá también Sí o No en el permiso de imagen.</p></div></div>`;
+        authWrap.appendChild(authorizations);
+        step2.appendChild(authWrap);
+      }
+
+      [...oldStep4.querySelectorAll(".legal-box")].forEach(box => oldStep5.appendChild(box));
+      oldStep4.remove();
+      oldStep5.dataset.step = "4";
+      const kicker = oldStep5.querySelector(".step-kicker");
+      if(kicker) kicker.textContent = "PASO 4";
+    }
+  }
 
   function updateCountdown(){
     const card=$("countdownCard");
@@ -140,7 +188,7 @@
       <label>Teléfono de contacto *<input data-pfield="contactPhone" data-id="${p.id}" inputmode="tel" value="${esc(p.contactPhone)}"></label>
       <label>Correo electrónico<input data-pfield="email" data-id="${p.id}" type="email" value="${esc(p.email)}"></label>
     </div></article>`; }
-  function renderPlayers(){ $("participants").innerHTML=players.map(playerHtml).join(""); $("playerCount").textContent=players.length; $("addParticipant").disabled=players.length>=MAX; }
+  function renderPlayers(){ $("participants").innerHTML=players.map(playerHtml).join(""); $("playerCount").textContent=players.length; $("addParticipant").disabled=players.length>=MAX; if($("authorizations")) renderAuth(); }
 
   function fileText(file){ return file ? `${file.name} · ${(file.size/1024/1024).toFixed(2)} MB` : "Ningún archivo seleccionado"; }
   function renderDocs(){ $("documents").innerHTML=players.map((p,i)=>`<article class="doc-card"><h3>${i+1}. ${esc(`${p.firstName} ${p.lastName}`.trim()||`Participante ${i+1}`)}</h3><div class="doc-grid">
@@ -167,12 +215,12 @@
   function validateFile(f){ return f && f.size>0 && f.size<=MAX_BYTES && allowedTypes.has(f.type); }
   function validateStep(s){ clearError(); const t=topData();
     if(s===1){ if(!t.team_name||!t.category||!t.delegate_name||!t.delegate_ci||!t.delegate_phone||!t.delegate_email) return showError("Completá todos los campos obligatorios del equipo y del responsable."); if(!/^\S+@\S+\.\S+$/.test(t.delegate_email)) return showError("Ingresá un correo electrónico válido."); }
-    if(s===2){ if(players.length<MIN||players.length>MAX) return showError("Cada equipo debe tener entre 5 y 10 participantes."); const seen=new Set(); for(let i=0;i<players.length;i++){const p=players[i],ci=digits(p.ci); if(!p.firstName||!p.lastName||!ci||!p.birth||!p.contactPhone) return showError(`Completá los campos obligatorios del participante ${i+1}.`); if(seen.has(ci)) return showError(`La cédula del participante ${i+1} está repetida dentro del equipo.`); seen.add(ci); const e=ageError(p); if(e) return showError(`Participante ${i+1}: ${e}`);}}
+    if(s===2){ if(players.length<MIN||players.length>MAX) return showError("Cada equipo debe tener entre 5 y 10 participantes."); const seen=new Set(); for(let i=0;i<players.length;i++){const p=players[i],ci=digits(p.ci); if(!p.firstName||!p.lastName||!ci||!p.birth||!p.contactPhone) return showError(`Completá los campos obligatorios del participante ${i+1}.`); if(seen.has(ci)) return showError(`La cédula del participante ${i+1} está repetida dentro del equipo.`); seen.add(ci); const e=ageError(p); if(e) return showError(`Participante ${i+1}: ${e}`); if(minor(p)&&(!p.guardianName||!digits(p.guardianCi)||!p.guardianRelation||!p.guardianPhone||!p.participationConsent)) return showError(`Completá la autorización de participación del menor ${i+1}.`); if(!["SI","NO"].includes(p.imageConsent)) return showError(`Indicá Sí o No en el permiso de imagen del participante ${i+1}.`);}}
     if(s===3){ for(let i=0;i<players.length;i++){const p=players[i]; if(!validateFile(p.ciFile)||!validateFile(p.fitnessFile)) return showError(`Seleccioná archivos válidos (PDF/JPG/PNG, máximo 8 MB) para el participante ${i+1}.`); if(!p.fitnessExpiry) return showError(`Ingresá el vencimiento del carné del participante ${i+1}.`); if(new Date(`${p.fitnessExpiry}T12:00:00`) < AGE_REF) return showError(`El carné del participante ${i+1} figura vencido al 11/09/2026.`);}}
-    if(s===4){ for(let i=0;i<players.length;i++){const p=players[i]; if(minor(p)&&(!p.guardianName||!digits(p.guardianCi)||!p.guardianRelation||!p.guardianPhone||!p.participationConsent)) return showError(`Completá la autorización de participación del menor ${i+1}.`); if(!["SI","NO"].includes(p.imageConsent)) return showError(`Indicá Sí o No en el permiso de imagen del participante ${i+1}.`);} if(!t.data_consent||!t.final_declaration) return showError("Debés aceptar la protección de datos y la declaración final."); }
+    if(s===4){ if(!t.data_consent||!t.final_declaration) return showError("Debés aceptar la protección de datos y la declaración final."); }
     return true; }
 
-  function setStep(s){ currentStep=s; document.querySelectorAll(".step").forEach(x=>x.classList.toggle("active",Number(x.dataset.step)===s)); const labels={1:"Paso 1 de 5 — Equipo",2:"Paso 2 de 5 — Participantes",3:"Paso 3 de 5 — Documentación",4:"Paso 4 de 5 — Autorizaciones",5:"Paso 5 de 5 — Revisar y enviar"}; $("stepTitle").textContent=labels[s]; $("progressBar").style.width=`${s*20}%`; $("prevBtn").classList.toggle("hidden",s===1); $("nextBtn").classList.toggle("hidden",s===5); $("submitBtn").classList.toggle("hidden",s!==5); if(s===3)renderDocs(); if(s===4)renderAuth(); if(s===5)renderReview(); saveDraft(); window.scrollTo({top:0,behavior:"smooth"}); }
+  function setStep(s){ currentStep=s; document.querySelectorAll(".step").forEach(x=>x.classList.toggle("active",Number(x.dataset.step)===s)); const labels={1:"Paso 1 de 4 — Equipo",2:"Paso 2 de 4 — Participantes y autorizaciones",3:"Paso 3 de 4 — Documentación",4:"Paso 4 de 4 — Revisar y enviar"}; $("stepTitle").textContent=labels[s]; $("progressBar").style.width=`${s*25}%`; $("prevBtn").classList.toggle("hidden",s===1); $("nextBtn").classList.toggle("hidden",s===4); $("submitBtn").classList.toggle("hidden",s!==4); if(s===2)renderAuth(); if(s===3)renderDocs(); if(s===4)renderReview(); saveDraft(); window.scrollTo({top:0,behavior:"smooth"}); }
 
   function payload(){ const t=topData(); return {team:t, participants:players.map(p=>({id:p.id,first_name:p.firstName.trim(),last_name:p.lastName.trim(),ci:digits(p.ci),birth_date:p.birth,phone:p.phone.trim(),contact_phone:p.contactPhone.trim(),email:p.email.trim(),fitness_expiry:p.fitnessExpiry,guardian_name:minor(p)?p.guardianName.trim():null,guardian_ci:minor(p)?digits(p.guardianCi):null,guardian_relation:minor(p)?p.guardianRelation.trim():null,guardian_phone:minor(p)?p.guardianPhone.trim():null,guardian_email:minor(p)?p.guardianEmail.trim():null,participation_consent:minor(p)?!!p.participationConsent:true,image_consent:p.imageConsent==="SI"}))}; }
   function ext(file){ const byType={"application/pdf":"pdf","image/jpeg":"jpg","image/png":"png"}; return byType[file.type] || "bin"; }
@@ -200,7 +248,7 @@
       const {data:final,error:finErr}=await client.rpc("finalize_registration",{p_team_id:draft.team_id,p_upload_token:draft.upload_token,p_documents:docs}); if(finErr) throw finErr;
       localStorage.removeItem(DRAFT_KEY); $("sendingCard").classList.add("hidden"); $("successCard").classList.remove("hidden");
       $("successSummary").innerHTML=`<strong>Equipo:</strong> ${esc(topData().team_name)}<br><strong>Categoría:</strong> ${esc(catLabel(topData().category))}<br><strong>Participantes:</strong> ${players.length}<br><strong>N.º de inscripción:</strong> <span class="mono">${esc(final.registration_number)}</span>`;
-    }catch(err){ console.error(err); $("sendingCard").classList.add("hidden"); $("formCard").classList.remove("hidden"); setStep(5); showError(`No se pudo completar la inscripción. ${err?.message||"Intentá nuevamente."}`); }
+    }catch(err){ console.error(err); $("sendingCard").classList.add("hidden"); $("formCard").classList.remove("hidden"); setStep(4); showError(`No se pudo completar la inscripción. ${err?.message||"Intentá nuevamente."}`); }
   }
 
   document.addEventListener("input",e=>{ const id=e.target.dataset.id,field=e.target.dataset.pfield; if(id&&field){ const p=players.find(x=>x.id===id); if(p){p[field]=e.target.value;if(field==="birth")renderPlayers();saveDraft();}} else if(e.target.closest("#registrationForm"))saveDraft(); });
@@ -212,5 +260,6 @@
   updateCountdown();
   setInterval(updateCountdown,1000);
 
+  prepareFourStepUI();
   if(initSupabase() && checkPeriod()){restore();setStep(1);}
 })();
