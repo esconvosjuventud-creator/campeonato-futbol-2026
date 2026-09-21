@@ -650,11 +650,27 @@ Queremos comunicarnos contigo por la inscripción del equipo.`;
     e.preventDefault();
     $("loginError").classList.add("hidden");
 
-    const login = $("loginEmail").value.trim().toLowerCase();
-    const email = login.includes("@") ? login : `${login}@campeonato.local`;
+    const username = $("loginEmail").value.trim().toLowerCase();
+
+    if (!username) {
+      $("loginError").textContent = "Ingresá tu nombre de usuario.";
+      $("loginError").classList.remove("hidden");
+      return;
+    }
+
+    const { data: resolvedEmail, error: resolveError } = await client.rpc(
+      "resolve_staff_login",
+      { p_username: username }
+    );
+
+    if (resolveError || !resolvedEmail) {
+      $("loginError").textContent = "Usuario o contraseña incorrectos.";
+      $("loginError").classList.remove("hidden");
+      return;
+    }
 
     const { error } = await client.auth.signInWithPassword({
-      email,
+      email: resolvedEmail,
       password: $("loginPassword").value
     });
 
