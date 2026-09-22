@@ -114,6 +114,45 @@
 
         <section id="eligibilitySummary" class="fixture-category-grid"></section>
 
+        <section class="card manual-fixture-section">
+          <div class="section-head">
+            <div>
+              <span class="fixture-kicker">OPCIÓN MANUAL</span>
+              <h2>Crear fixture manual</h2>
+              <p class="help">
+                Elegí los cruces partido por partido. Solo se muestran equipos habilitados de la categoría seleccionada.
+              </p>
+            </div>
+          </div>
+
+          <div class="manual-fixture-settings">
+            <label>
+              Categoría
+              <select id="manualFixtureCategory">
+                <option value="M13-15">Masculino 13–15</option>
+                <option value="M16-22">Masculino 16–22</option>
+                <option value="F-LIBRE">Femenino Libre</option>
+              </select>
+            </label>
+
+            <label class="manual-fixture-name">
+              Nombre del fixture
+              <input id="manualFixtureName" maxlength="120" placeholder="Ej.: Fixture manual Masculino 13–15">
+            </label>
+
+            <div class="manual-fixture-actions">
+              <button id="addManualMatchBtn" class="btn light" type="button">＋ Agregar partido</button>
+              <button id="createManualFixtureBtn" class="btn primary" type="button">Guardar fixture manual</button>
+            </div>
+          </div>
+
+          <div id="manualFixtureHint" class="fixture-hint manual-fixture-hint">
+            Indicá arriba la fecha de inicio del campeonato y elegí una categoría.
+          </div>
+
+          <div id="manualFixtureMatches" class="manual-fixture-matches"></div>
+        </section>
+
         <section class="card fixture-saved-section">
           <div class="section-head">
             <div>
