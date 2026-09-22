@@ -178,10 +178,10 @@
 
         if (sa > sb) {
           a.pg++; b.pp++;
-          a.pts += 3;
+          a.pts += 2;
         } else if (sb > sa) {
           b.pg++; a.pp++;
-          b.pts += 3;
+          b.pts += 2;
         } else {
           a.pe++; b.pe++;
           a.pts++; b.pts++;
