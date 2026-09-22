@@ -55,8 +55,8 @@
         a.gf += sa; a.gc += sb;
         b.gf += sb; b.gc += sa;
 
-        if (sa > sb) { a.pg++; b.pp++; a.pts += 3; }
-        else if (sb > sa) { b.pg++; a.pp++; b.pts += 3; }
+        if (sa > sb) { a.pg++; b.pp++; a.pts += 2; }
+        else if (sb > sa) { b.pg++; a.pp++; b.pts += 2; }
         else { a.pe++; b.pe++; a.pts++; b.pts++; }
       });
 
