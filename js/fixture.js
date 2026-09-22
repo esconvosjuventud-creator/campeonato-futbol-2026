@@ -11,6 +11,7 @@
   let client = null;
   let teams = [];
   let fixtures = [];
+  let manualMatches = [];
   let initialized = false;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
@@ -357,6 +358,7 @@
         fixture_name: fixtureName.trim(),
         competition_date: competitionDate,
         format: "ROUND_ROBIN",
+        creation_mode: "AUTO",
         created_by: user?.id || null
       })
       .select()
@@ -390,6 +392,294 @@
     renderSavedFixtures();
   }
 
+  function manualEligibleTeams() {
+    const category = $("manualFixtureCategory")?.value || "";
+    const competitionDate = $("fixtureCompetitionDate")?.value || "";
+    if (!category || !competitionDate) return [];
+    return categoryTeams(category, competitionDate).filter(t => t.evaluation.eligible);
+  }
+
+  function manualTeamOptions(selectedId = "") {
+    const options = manualEligibleTeams();
+    return [
+      '<option value="">Seleccionar equipo</option>',
+      ...options.map(t =>
+        `<option value="${t.id}" ${t.id === selectedId ? "selected" : ""}>${esc(t.team_name)}</option>`
+      )
+    ].join("");
+  }
+
+  function renderManualBuilder() {
+    const container = $("manualFixtureMatches");
+    const hint = $("manualFixtureHint");
+    const addBtn = $("addManualMatchBtn");
+    const saveBtn = $("createManualFixtureBtn");
+    if (!container || !hint || !addBtn || !saveBtn) return;
+
+    const category = $("manualFixtureCategory")?.value || "";
+    const competitionDate = $("fixtureCompetitionDate")?.value || "";
+    const eligible = manualEligibleTeams();
+
+    const defaultName = category ? `Fixture manual ${CATEGORY_LABELS[category]} 2026` : "";
+    const nameInput = $("manualFixtureName");
+    if (nameInput && !nameInput.value.trim()) nameInput.placeholder = defaultName;
+
+    if (!competitionDate) {
+      hint.textContent = "Primero indicá la fecha de inicio del campeonato.";
+      addBtn.disabled = true;
+      saveBtn.disabled = true;
+    } else if (eligible.length < 2) {
+      hint.textContent = "Se necesitan al menos 2 equipos habilitados en la categoría seleccionada.";
+      addBtn.disabled = true;
+      saveBtn.disabled = true;
+    } else {
+      hint.textContent = `${eligible.length} equipos habilitados disponibles. Podés armar los cruces manualmente.`;
+      addBtn.disabled = false;
+      saveBtn.disabled = manualMatches.length === 0;
+    }
+
+    if (!manualMatches.length) {
+      container.innerHTML = `
+        <div class="fixture-empty manual-empty">
+          <span>✍️</span>
+          <strong>No agregaste partidos todavía</strong>
+          <small>Presioná “Agregar partido” para comenzar a armar el fixture manual.</small>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = manualMatches.map((m, index) => `
+      <article class="manual-match-row" data-manual-id="${m.id}">
+        <div class="manual-match-number">P${index + 1}</div>
+
+        <label>
+          Fecha / rueda
+          <input
+            type="number"
+            min="1"
+            value="${m.round_number}"
+            data-manual-field="round_number"
+            data-manual-id="${m.id}"
+          >
+        </label>
+
+        <label>
+          Equipo A
+          <select data-manual-field="team_a_id" data-manual-id="${m.id}">
+            ${manualTeamOptions(m.team_a_id)}
+          </select>
+        </label>
+
+        <span class="manual-versus">vs.</span>
+
+        <label>
+          Equipo B
+          <select data-manual-field="team_b_id" data-manual-id="${m.id}">
+            ${manualTeamOptions(m.team_b_id)}
+          </select>
+        </label>
+
+        <label>
+          Día
+          <input
+            type="date"
+            value="${esc(m.match_date || "")}"
+            data-manual-field="match_date"
+            data-manual-id="${m.id}"
+          >
+        </label>
+
+        <label>
+          Hora
+          <input
+            type="time"
+            value="${esc(m.match_time || "")}"
+            data-manual-field="match_time"
+            data-manual-id="${m.id}"
+          >
+        </label>
+
+        <label>
+          Cancha
+          <input
+            value="${esc(m.court || "")}"
+            placeholder="Cancha"
+            data-manual-field="court"
+            data-manual-id="${m.id}"
+          >
+        </label>
+
+        <button class="btn danger remove-manual-match" data-manual-id="${m.id}" type="button">
+          Quitar
+        </button>
+      </article>
+    `).join("");
+  }
+
+  function addManualMatch() {
+    const competitionDate = $("fixtureCompetitionDate")?.value || "";
+    if (!competitionDate) {
+      showNotice("Indicá primero la fecha de inicio del campeonato.", true);
+      return;
+    }
+
+    if (manualEligibleTeams().length < 2) {
+      showNotice("No hay suficientes equipos habilitados para crear partidos manuales.", true);
+      return;
+    }
+
+    manualMatches.push({
+      id: crypto.randomUUID(),
+      round_number: 1,
+      team_a_id: "",
+      team_b_id: "",
+      match_date: competitionDate,
+      match_time: "",
+      court: ""
+    });
+
+    renderManualBuilder();
+  }
+
+  function updateManualMatch(target) {
+    const id = target.dataset.manualId;
+    const field = target.dataset.manualField;
+    if (!id || !field) return;
+
+    const row = manualMatches.find(m => m.id === id);
+    if (!row) return;
+
+    row[field] = field === "round_number"
+      ? Math.max(1, Number(target.value || 1))
+      : target.value;
+  }
+
+  async function createManualFixture() {
+    hideNotice();
+
+    const category = $("manualFixtureCategory")?.value || "";
+    const competitionDate = $("fixtureCompetitionDate")?.value || "";
+    const eligible = manualEligibleTeams();
+    const eligibleIds = new Set(eligible.map(t => t.id));
+
+    if (!competitionDate) {
+      showNotice("Indicá la fecha de inicio del campeonato.", true);
+      return;
+    }
+
+    if (!category || eligible.length < 2) {
+      showNotice("La categoría no tiene suficientes equipos habilitados.", true);
+      return;
+    }
+
+    if (!manualMatches.length) {
+      showNotice("Agregá al menos un partido al fixture manual.", true);
+      return;
+    }
+
+    for (let i = 0; i < manualMatches.length; i++) {
+      const m = manualMatches[i];
+      if (!eligibleIds.has(m.team_a_id) || !eligibleIds.has(m.team_b_id)) {
+        showNotice(`Partido ${i + 1}: seleccioná dos equipos habilitados.`, true);
+        return;
+      }
+      if (m.team_a_id === m.team_b_id) {
+        showNotice(`Partido ${i + 1}: un equipo no puede jugar contra sí mismo.`, true);
+        return;
+      }
+      if (!Number.isInteger(Number(m.round_number)) || Number(m.round_number) < 1) {
+        showNotice(`Partido ${i + 1}: la fecha/rueda debe ser mayor o igual a 1.`, true);
+        return;
+      }
+    }
+
+    const teamsByRound = new Map();
+    for (const m of manualMatches) {
+      const round = Number(m.round_number);
+      if (!teamsByRound.has(round)) teamsByRound.set(round, new Set());
+      const used = teamsByRound.get(round);
+      if (used.has(m.team_a_id) || used.has(m.team_b_id)) {
+        showNotice(`En la Fecha ${round} hay un equipo asignado a más de un partido.`, true);
+        return;
+      }
+      used.add(m.team_a_id);
+      used.add(m.team_b_id);
+    }
+
+    const existing = fixtures.find(
+      f => f.category === category && f.status !== "Finalizado"
+    );
+    if (existing) {
+      const ok = window.confirm(
+        `Ya existe un fixture de ${CATEGORY_LABELS[category]} (${existing.fixture_name}). ¿Querés crear otro fixture manual igualmente?`
+      );
+      if (!ok) return;
+    }
+
+    const nameInput = $("manualFixtureName");
+    const fixtureName = (nameInput?.value || "").trim() ||
+      `Fixture manual ${CATEGORY_LABELS[category]} 2026`;
+
+    const { data: { user } } = await client.auth.getUser();
+
+    const { data: fixture, error: fixtureError } = await client
+      .from("fixtures")
+      .insert({
+        category,
+        fixture_name: fixtureName,
+        competition_date: competitionDate,
+        format: "ROUND_ROBIN",
+        creation_mode: "MANUAL",
+        created_by: user?.id || null
+      })
+      .select()
+      .single();
+
+    if (fixtureError) {
+      showNotice(`No se pudo crear el fixture manual: ${fixtureError.message}`, true);
+      return;
+    }
+
+    const counters = {};
+    const matchRows = manualMatches.map(m => {
+      const round = Number(m.round_number);
+      counters[round] = (counters[round] || 0) + 1;
+      return {
+        fixture_id: fixture.id,
+        round_number: round,
+        round_label: `Fecha ${round}`,
+        match_order: counters[round],
+        team_a_id: m.team_a_id,
+        team_b_id: m.team_b_id,
+        is_bye: false,
+        match_date: m.match_date || null,
+        match_time: m.match_time || null,
+        court: (m.court || "").trim() || null
+      };
+    });
+
+    const { error: matchError } = await client
+      .from("fixture_matches")
+      .insert(matchRows);
+
+    if (matchError) {
+      await client.from("fixtures").delete().eq("id", fixture.id);
+      showNotice(`No se pudieron guardar los partidos: ${matchError.message}`, true);
+      return;
+    }
+
+    manualMatches = [];
+    if (nameInput) nameInput.value = "";
+    showNotice(
+      `Fixture manual creado para ${CATEGORY_LABELS[category]} con ${matchRows.length} partido${matchRows.length === 1 ? "" : "s"}.`
+    );
+
+    await loadFixtures();
+    renderManualBuilder();
+    renderSavedFixtures();
+  }
+
   function teamName(id) {
     if (!id) return "—";
     return teams.find(t => t.id === id)?.team_name || "Equipo";
@@ -417,7 +707,8 @@
               <span class="fixture-kicker">${esc(CATEGORY_LABELS[f.category])}</span>
               <h3>${esc(f.fixture_name)}</h3>
               <p class="small">
-                Inicio ${esc(f.competition_date)} · Todos contra todos ·
+                Inicio ${esc(f.competition_date)} ·
+                ${f.creation_mode === "MANUAL" ? "Fixture manual" : "Automático · Todos contra todos"} ·
                 ${f.matches.filter(m => !m.is_bye).length} partidos
               </p>
             </div>
@@ -567,6 +858,7 @@
 
       await Promise.all([loadTeams(), loadFixtures()]);
       renderEligibility();
+      renderManualBuilder();
       renderSavedFixtures();
     } catch (error) {
       showNotice(
@@ -597,6 +889,19 @@
       createFixture(target.dataset.category);
     }
 
+    if (target.id === "addManualMatchBtn") {
+      addManualMatch();
+    }
+
+    if (target.id === "createManualFixtureBtn") {
+      createManualFixture();
+    }
+
+    if (target.matches(".remove-manual-match")) {
+      manualMatches = manualMatches.filter(m => m.id !== target.dataset.manualId);
+      renderManualBuilder();
+    }
+
     if (target.matches(".save-match")) {
       saveMatch(target.dataset.matchId);
     }
@@ -611,7 +916,27 @@
   });
 
   $("fixtureCompetitionDate")?.addEventListener("change", () => {
-    if (teams.length) renderEligibility();
+    if (teams.length) {
+      renderEligibility();
+      renderManualBuilder();
+    }
+  });
+
+  $("manualFixtureCategory")?.addEventListener("change", () => {
+    manualMatches = [];
+    renderManualBuilder();
+  });
+
+  document.addEventListener("input", event => {
+    if (event.target.matches("[data-manual-field][data-manual-id]")) {
+      updateManualMatch(event.target);
+    }
+  });
+
+  document.addEventListener("change", event => {
+    if (event.target.matches("[data-manual-field][data-manual-id]")) {
+      updateManualMatch(event.target);
+    }
   });
 
   $("reloadFixturesBtn")?.addEventListener("click", refreshModule);
