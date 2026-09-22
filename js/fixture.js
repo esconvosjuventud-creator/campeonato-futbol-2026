@@ -231,165 +231,16 @@
             }
           </div>
 
-          <button
-            class="btn primary generate-fixture-btn"
-            type="button"
-            data-category="${category}"
-            ${!date || eligible.length < 2 ? "disabled" : ""}
-          >
-            Generar fixture · ${eligible.length} equipos
-          </button>
-
           ${
             !date
               ? `<p class="fixture-hint">Primero indicá la fecha de inicio del campeonato.</p>`
               : eligible.length < 2
                 ? `<p class="fixture-hint">Se necesitan al menos 2 equipos habilitados.</p>`
-                : `<p class="fixture-hint">Formato: todos contra todos, una rueda.</p>`
+                : `<p class="fixture-hint">Estos equipos están disponibles para el fixture manual.</p>`
           }
         </article>
       `;
     }).join("");
-  }
-
-  function shuffle(items) {
-    const a = [...items];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function buildRoundRobin(teamRows) {
-    const shuffled = shuffle(teamRows);
-    const list = shuffled.map(t => ({ id: t.id, name: t.team_name }));
-
-    if (list.length % 2 === 1) {
-      list.push({ id: null, name: "LIBRE" });
-    }
-
-    const n = list.length;
-    const rounds = [];
-    let rotation = [...list];
-
-    for (let round = 0; round < n - 1; round++) {
-      const matches = [];
-
-      for (let i = 0; i < n / 2; i++) {
-        const a = rotation[i];
-        const b = rotation[n - 1 - i];
-
-        if (!a.id || !b.id) {
-          const real = a.id ? a : b;
-          matches.push({
-            round_number: round + 1,
-            round_label: `Fecha ${round + 1}`,
-            match_order: i + 1,
-            team_a_id: real.id,
-            team_b_id: null,
-            is_bye: true
-          });
-        } else {
-          // Alterna local/visitante para balancear presentación.
-          const reverse = round % 2 === 1 && i === 0;
-          matches.push({
-            round_number: round + 1,
-            round_label: `Fecha ${round + 1}`,
-            match_order: i + 1,
-            team_a_id: reverse ? b.id : a.id,
-            team_b_id: reverse ? a.id : b.id,
-            is_bye: false
-          });
-        }
-      }
-
-      rounds.push(matches);
-
-      // Método circular: fija el primero y rota el resto.
-      rotation = [
-        rotation[0],
-        rotation[n - 1],
-        ...rotation.slice(1, n - 1)
-      ];
-    }
-
-    return rounds.flat();
-  }
-
-  async function createFixture(category) {
-    hideNotice();
-
-    const competitionDate = $("fixtureCompetitionDate").value;
-    if (!competitionDate) {
-      showNotice("Indicá la fecha de inicio del campeonato.", true);
-      return;
-    }
-
-    const eligible = categoryTeams(category, competitionDate)
-      .filter(t => t.evaluation.eligible);
-
-    if (eligible.length < 2) {
-      showNotice("No hay suficientes equipos habilitados para generar el fixture.", true);
-      return;
-    }
-
-    const existing = fixtures.find(
-      f => f.category === category && f.status !== "Finalizado"
-    );
-
-    if (existing) {
-      const ok = window.confirm(
-        `Ya existe un fixture de ${CATEGORY_LABELS[category]} (${existing.fixture_name}). ¿Querés crear una nueva versión igualmente?`
-      );
-      if (!ok) return;
-    }
-
-    const defaultName = `Fixture ${CATEGORY_LABELS[category]} 2026`;
-    const fixtureName = window.prompt("Nombre del fixture:", defaultName);
-    if (!fixtureName) return;
-
-    const { data: { user } } = await client.auth.getUser();
-
-    const { data: fixture, error: fixtureError } = await client
-      .from("fixtures")
-      .insert({
-        category,
-        fixture_name: fixtureName.trim(),
-        competition_date: competitionDate,
-        format: "ROUND_ROBIN",
-        creation_mode: "AUTO",
-        created_by: user?.id || null
-      })
-      .select()
-      .single();
-
-    if (fixtureError) {
-      showNotice(`No se pudo crear el fixture: ${fixtureError.message}`, true);
-      return;
-    }
-
-    const matchRows = buildRoundRobin(eligible).map(m => ({
-      fixture_id: fixture.id,
-      ...m
-    }));
-
-    const { error: matchError } = await client
-      .from("fixture_matches")
-      .insert(matchRows);
-
-    if (matchError) {
-      await client.from("fixtures").delete().eq("id", fixture.id);
-      showNotice(`No se pudieron crear los partidos: ${matchError.message}`, true);
-      return;
-    }
-
-    showNotice(
-      `Fixture creado para ${CATEGORY_LABELS[category]} con ${eligible.length} equipos.`
-    );
-
-    await loadFixtures();
-    renderSavedFixtures();
   }
 
   function manualEligibleTeams() {
@@ -883,10 +734,6 @@
 
     if (target.id === "fixtureTabBtn") {
       activateFixture();
-    }
-
-    if (target.matches(".generate-fixture-btn")) {
-      createFixture(target.dataset.category);
     }
 
     if (target.id === "addManualMatchBtn") {
